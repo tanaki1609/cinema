@@ -1,0 +1,45 @@
+from rest_framework import serializers
+from .models import Film, Director
+from rest_framework.exceptions import ValidationError
+
+
+class DirectorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Director
+        fields = 'id fio'.split()
+
+
+class FilmDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Film
+        fields = '__all__'
+
+
+class FilmListSerializer(serializers.ModelSerializer):
+    director = DirectorSerializer()
+    genres = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Film
+        fields = 'id director genres title is_hit rating created reviews'.split()
+        depth = 1
+
+    def get_genres(self, film):
+        return film.genre_names[0:2]
+
+
+class FilmValidateSerializer(serializers.Serializer):
+    title = serializers.CharField(required=True, min_length=2, max_length=255)
+    text = serializers.CharField(required=False)
+    release_year = serializers.IntegerField()
+    rating = serializers.FloatField(min_value=1, max_value=10)
+    is_hit = serializers.BooleanField(default=True)
+    director_id = serializers.IntegerField()
+    genres = serializers.ListField(child=serializers.IntegerField(min_value=1))
+
+    def validate_director_id(self, director_id):
+        try:
+            Director.objects.get(id=director_id)
+        except Director.DoesNotExist:
+            raise ValidationError('Director does not exist!')
+        return director_id
