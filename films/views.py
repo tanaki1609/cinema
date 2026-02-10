@@ -1,13 +1,67 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Film
+from .models import Film, Genre, Director
 from .serializers import (
     FilmListSerializer,
     FilmDetailSerializer,
-    FilmValidateSerializer
+    FilmValidateSerializer,
+    GenreSerializer,
+    DirectorSerializer,
+    DirectorCreateSerializer
 )
 from django.db import transaction
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.viewsets import ModelViewSet
+
+
+class CustomPagination(PageNumberPagination):
+    def get_paginated_response(self, data):
+        return Response({
+            'total': self.page.paginator.count,
+            'next': self.get_next_link(),
+            'previous': self.get_previous_link(),
+            'results': data,
+        })
+
+
+class GenreListAPIView(ListCreateAPIView):
+    serializer_class = GenreSerializer  # class inherited by ModelSerializer
+    queryset = Genre.objects.all()  # list of data received from DB
+    pagination_class = CustomPagination
+
+
+class GenreDetailAPIView(RetrieveUpdateDestroyAPIView):
+    serializer_class = GenreSerializer
+    queryset = Genre.objects.all()
+    lookup_field = 'id'
+
+
+class DirectorViewSet(ModelViewSet):
+    serializer_class = DirectorSerializer
+    queryset = Director.objects.all()
+    pagination_class = CustomPagination
+    lookup_field = 'id'
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST' or self.request.method == 'PUT':
+            return DirectorCreateSerializer
+        return DirectorSerializer
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
