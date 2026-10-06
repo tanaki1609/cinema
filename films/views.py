@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Film
-from .serializers import FilmSerializer, FilmDetailSerializer
+from .serializers import FilmSerializer, FilmDetailSerializer, FilmValidateSerializer
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
@@ -19,6 +19,9 @@ def film_detail_api_view(request, id):
         film.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     elif request.method == 'PUT':
+        serializer = FilmValidateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
         film.title = request.data.get('title')
         film.description = request.data.get('description')
         film.release_date = request.data.get('release_date')
@@ -43,14 +46,20 @@ def film_list_api_view(request):
         # step 3: return response
         return Response(data=list_)
     elif request.method == 'POST':
-        # step 1: Receive data (RequestBody)
-        title = request.data.get('title')
-        release_date = request.data.get('release_date')
-        rating = request.data.get('rating')
-        description = request.data.get('description')
-        is_hit = request.data.get('is_hit')
-        director_id = request.data.get('director_id')
-        genres = request.data.get('genres')
+        # step 0: Validation (existing, typing, extra)
+        serializer = FilmValidateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST,
+                            data=serializer.errors)
+
+        # step 1: Receive data (ValidatedData)
+        title = serializer.validated_data.get('title')
+        release_date = serializer.validated_data.get('release_date')
+        rating = serializer.validated_data.get('rating')
+        description = serializer.validated_data.get('description')
+        is_hit = serializer.validated_data.get('is_hit')  # "y"
+        director_id = serializer.validated_data.get('director_id')
+        genres = serializer.validated_data.get('genres')
 
         # step 2: Create film
         film = Film.objects.create(
