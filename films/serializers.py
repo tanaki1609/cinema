@@ -18,7 +18,13 @@ class GenreSerializer(serializers.ModelSerializer):
 class DirectorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Director
-        fields = 'id fio'.split()
+        fields = '__all__'
+
+
+class BaseDirectorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Director
+        fields = 'id first_name last_name'.split()
 
 
 class FilmDetailSerializer(serializers.ModelSerializer):

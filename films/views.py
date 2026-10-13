@@ -1,8 +1,59 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Film
-from .serializers import FilmSerializer, FilmDetailSerializer, FilmValidateSerializer
+from .models import Film, Genre, Director
+from .serializers import (
+    FilmSerializer,
+    FilmDetailSerializer,
+    FilmValidateSerializer,
+    GenreSerializer,
+    BaseDirectorSerializer,
+    DirectorSerializer
+)
+from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListCreateAPIView
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.viewsets import ModelViewSet
+
+
+class CustomPagination(PageNumberPagination):
+    def get_paginated_response(self, data):
+        return Response({
+            'total': self.page.paginator.count,
+            'next': self.get_next_link(),
+            'previous': self.get_previous_link(),
+            'results': data,
+        })
+
+
+class GenreListAPIView(ListCreateAPIView):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer  # ModelSerializer
+    pagination_class = CustomPagination
+
+
+class GenreDetailAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    lookup_field = 'id'
+
+
+class DirectorViewSet(ModelViewSet):
+    queryset = Director.objects.all()
+    serializer_class = BaseDirectorSerializer
+    pagination_class = CustomPagination
+    lookup_field = 'id'
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST' or self.request.method == 'PUT':
+            return DirectorSerializer
+        return self.serializer_class
+
+    # def create(self, request, *args, **kwargs):
+    #     serializer = DirectorSerializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_create(serializer)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
