@@ -16,8 +16,12 @@ class FilmDetailSerializer(serializers.ModelSerializer):
 
 class FilmSerializer(serializers.ModelSerializer):
     director = DirectorSerializer(many=False)
+    genres = serializers.SerializerMethodField()
 
     class Meta:
         model = Film
         fields = 'id title release_year rating created director genres'.split()
-        depth = 1
+        # depth = 1
+
+    def get_genres(self, film):
+        return film.genre_list()

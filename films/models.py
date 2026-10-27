@@ -31,3 +31,6 @@ class Film(models.Model):
 
     def __str__(self):
         return self.title
+
+    def genre_list(self):
+        return [i.name for i in self.genres.all()]
