@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
@@ -26,7 +25,6 @@ SECRET_KEY = 'django-insecure-pg2_8k03xpp&@lrx378f(!tllj0hiq+4y8=714$x3rj*us2+xg
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -56,12 +54,12 @@ QUERYCOUNT = {
     'THRESHOLDS': {
         'MEDIUM': 50,
         'HIGH': 200,
-        'MIN_TIME_TO_LOG':0,
-        'MIN_QUERY_COUNT_TO_LOG':0
+        'MIN_TIME_TO_LOG': 0,
+        'MIN_QUERY_COUNT_TO_LOG': 0
     },
     'IGNORE_REQUEST_PATTERNS': [],
     'IGNORE_SQL_PATTERNS': [],
-    'DISPLAY_DUPLICATES': None,
+    'DISPLAY_DUPLICATES': True,
     'RESPONSE_HEADER': 'X-DjangoQueryCount-Count'
 }
 
@@ -84,7 +82,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'cinema.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
@@ -94,7 +91,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
@@ -114,7 +110,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
 
@@ -126,12 +121,10 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
-
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
